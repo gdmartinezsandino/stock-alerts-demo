@@ -2,6 +2,7 @@ import { createServer } from "http";
 import { createApp } from "./app";
 import { env } from "./config/env";
 import { prisma } from "./config/prisma";
+import { initSocketIO } from "./sockets/io";
 import { priceFeed } from "./services/priceFeed";
 import { createLogger } from "./utils/logger";
 
@@ -14,12 +15,13 @@ async function main() {
 
   const app = createApp();
   const httpServer = createServer(app);
+  initSocketIO(httpServer);
 
   // Start the live price pipeline (WS-first with REST fallback).
   priceFeed.start();
 
   httpServer.listen(env.port, () => {
-    log.info(`API listening on http://localhost:${env.port}`);
+    log.info(`API + Socket.IO listening on http://localhost:${env.port}`);
   });
 
   const shutdown = async (signal: string) => {
