@@ -1,0 +1,20 @@
+# Dependencies / build output are ignored per-package (backend/, mobile/)
+node_modules/
+dist/
+.DS_Store
+*.log
+
+# Local env / secrets
+.env
+.env.local
+**/firebase-service-account.json
+**/google-services.json
+**/GoogleService-Info.plist
+
+# The original brief PDFs (not part of the deliverable source)
+*.pdf
+
+# Editor / tooling state
+.claude/
+.vscode/
+.idea/
