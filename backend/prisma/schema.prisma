@@ -1,0 +1,58 @@
+// Prisma schema for the Stock Alerts backend.
+// Run `npm run prisma:migrate` after editing.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String        @id @default(uuid())
+  email        String        @unique
+  passwordHash String
+  createdAt    DateTime      @default(now())
+  alerts       Alert[]
+  deviceTokens DeviceToken[]
+}
+
+// A push-notification token (FCM) registered by a user's device.
+model DeviceToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  platform  String   @default("android")
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+enum AlertDirection {
+  ABOVE
+  BELOW
+}
+
+enum AlertStatus {
+  ACTIVE
+  TRIGGERED
+}
+
+// A price alert: notify the user when `symbol` crosses `targetPrice`.
+model Alert {
+  id          String         @id @default(uuid())
+  symbol      String
+  targetPrice Float
+  direction   AlertDirection @default(ABOVE)
+  status      AlertStatus    @default(ACTIVE)
+  userId      String
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  triggeredAt DateTime?
+  createdAt   DateTime       @default(now())
+
+  @@index([userId])
+  @@index([symbol, status])
+}
