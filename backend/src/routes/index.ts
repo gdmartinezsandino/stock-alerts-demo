@@ -4,6 +4,7 @@ import { requireAuth } from "../middleware/auth";
 import * as auth from "../controllers/authController";
 import * as alerts from "../controllers/alertsController";
 import * as stocks from "../controllers/stocksController";
+import * as devices from "../controllers/devicesController";
 
 export const router = Router();
 
@@ -24,3 +25,7 @@ router.get("/alerts", requireAuth, asyncHandler(alerts.listAlerts));
 router.post("/alerts", requireAuth, asyncHandler(alerts.createAlert));
 router.delete("/alerts/:id", requireAuth, asyncHandler(alerts.deleteAlert));
 router.post("/alerts/:id/reset", requireAuth, asyncHandler(alerts.resetAlert));
+
+// --- Devices (FCM tokens) ---
+router.post("/devices", requireAuth, asyncHandler(devices.registerDevice));
+router.delete("/devices", requireAuth, asyncHandler(devices.unregisterDevice));
