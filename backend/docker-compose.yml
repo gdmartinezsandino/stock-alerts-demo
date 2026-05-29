@@ -1,0 +1,42 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: stock
+      POSTGRES_PASSWORD: stock
+      POSTGRES_DB: stockdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U stock -d stockdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      DATABASE_URL: postgresql://stock:stock@db:5432/stockdb?schema=public
+      JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
+      JWT_EXPIRES_IN: 7d
+      FINNHUB_API_KEY: ${FINNHUB_API_KEY}
+      TRACKED_SYMBOLS: ${TRACKED_SYMBOLS:-AAPL,MSFT,GOOGL,AMZN,TSLA,META,NVDA,NFLX}
+      # Mount your service account and point to it to enable real FCM pushes.
+      FIREBASE_CREDENTIALS_PATH: ${FIREBASE_CREDENTIALS_PATH:-}
+    ports:
+      - "4000:4000"
+    # Uncomment to mount a Firebase service-account JSON from the host:
+    # volumes:
+    #   - ./firebase-service-account.json:/app/firebase-service-account.json:ro
+
+volumes:
+  pgdata:
