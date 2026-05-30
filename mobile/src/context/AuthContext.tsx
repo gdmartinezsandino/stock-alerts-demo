@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
 import * as api from "../api/client";
 import { User } from "../types";
+import { registerForPushNotifications } from "../services/notifications";
 
 interface AuthState {
   user: User | null;
@@ -27,10 +28,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     })();
   }, []);
 
+  // Once authenticated, register this device for push notifications.
   const afterAuth = useCallback(async (newToken: string, newUser: User) => {
     await api.setToken(newToken);
     setTokenState(newToken);
     setUser(newUser);
+    // Fire-and-forget; push setup must never block login.
+    registerForPushNotifications().catch(() => undefined);
   }, []);
 
   const login = useCallback(
