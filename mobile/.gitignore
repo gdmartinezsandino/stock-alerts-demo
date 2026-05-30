@@ -1,0 +1,14 @@
+node_modules/
+.expo/
+dist/
+web-build/
+*.log
+.DS_Store
+
+# iOS native project (not generated for this deliverable)
+/ios/
+
+# Secrets / Firebase config (each developer supplies their own)
+google-services.json
+GoogleService-Info.plist
+.env
