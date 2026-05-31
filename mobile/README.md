@@ -96,25 +96,31 @@ background/quit state; in the foreground `expo-notifications` renders it.
 
 ## Android build (APK)
 
-For the deliverable, produce a shareable APK with **EAS Build** (cloud, no local
-Android SDK needed):
+The shareable release APK (`StockAlerts-v1.0.0.apk`) is built locally with
+Gradle — the JS bundle is embedded, so it runs without Metro and installs on any
+Android device/emulator:
 
 ```bash
-npm install -g eas-cli
-eas login
-eas build:configure
-eas build -p android --profile preview   # outputs a downloadable .apk URL
-```
-
-Or build locally after `expo prebuild`:
-
-```bash
-npx expo prebuild -p android
-cd android && ./gradlew assembleRelease
+cd mobile && npm install
+cd android && ./gradlew :app:assembleRelease
 # APK at android/app/build/outputs/apk/release/app-release.apk
 ```
 
-Upload the resulting APK to WeTransfer and share the link with the repo.
+> ⚠️ **The backend is not publicly hosted.** This APK ships pointing at
+> `http://10.0.2.2:4000` (see `app.json` → `expo.extra`), which is the host
+> machine's loopback **as seen from the Android emulator**. To exercise the app
+> you must:
+>
+> 1. Run the backend locally on port **4000** (`cd backend && docker compose up -d db && npm run dev`).
+> 2. Install and run the APK on an **Android emulator** (not a physical phone) —
+>    `10.0.2.2` only resolves to your host from inside the emulator. A physical
+>    device on the LAN would instead need `app.json` repointed to the machine's
+>    LAN IP (e.g. `http://192.168.1.20:4000`) and the APK rebuilt.
+>
+> Login, live prices, alerts and FCM push were verified end-to-end on the
+> emulator with the backend running locally.
+
+Upload `StockAlerts-v1.0.0.apk` to WeTransfer and share the link with the repo.
 
 ## Troubleshooting
 
